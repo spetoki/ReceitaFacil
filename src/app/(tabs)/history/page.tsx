@@ -36,12 +36,25 @@ export default function HistoryPage() {
   }
 
   const billingSummary = useMemo(() => {
-    const totalRevenue = history.reduce((acc, sale) => acc + sale.total, 0);
+    const revenueByMethod = history.reduce((acc, sale) => {
+      // Ensure paymentMethod is defined, default to 'dinheiro' for older records if needed
+      const method = sale.paymentMethod ?? (sale.type === 'trade' ? 'troca' : 'dinheiro');
+      acc[method] = (acc[method] || 0) + sale.total;
+      return acc;
+    }, {} as Record<NonNullable<Sale['paymentMethod']>, number>);
+    
+    const totalRevenue = Object.values(revenueByMethod).reduce((sum, current) => sum + current, 0);
     const totalGramsSold = history.reduce((acc, sale) => acc + sale.grams, 0);
     const totalCost = (stockAdditions || []).reduce((acc, addition) => acc + (addition.cost || 0), 0);
     const currentStock = stock;
 
-    return { totalRevenue, totalGramsSold, totalCost, currentStock };
+    return { 
+      totalRevenue, 
+      revenueByMethod,
+      totalGramsSold, 
+      totalCost, 
+      currentStock 
+    };
   }, [history, stockAdditions, stock]);
 
   const getPaymentMethodIcon = (paymentMethod?: Sale['paymentMethod']): ReactNode => {
@@ -142,23 +155,36 @@ export default function HistoryPage() {
               Resumo do Faturamento
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4 text-sm">
+          <CardContent className="space-y-4">
+            <div className="text-center p-4 bg-muted/30 rounded-lg">
+              <p className="text-sm text-muted-foreground">Faturamento Total</p>
+              <p className="text-3xl font-bold text-primary">{formatCurrency(billingSummary.totalRevenue)}</p>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
               <div>
-                <p className="text-muted-foreground">Faturamento Total</p>
-                <p className="font-semibold text-lg">{formatCurrency(billingSummary.totalRevenue)}</p>
+                <p className="text-muted-foreground">Em Dinheiro</p>
+                <p className="font-semibold text-base">{formatCurrency(billingSummary.revenueByMethod.dinheiro || 0)}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Via Pix</p>
+                <p className="font-semibold text-base">{formatCurrency(billingSummary.revenueByMethod.pix || 0)}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Em Trocas</p>
+                <p className="font-semibold text-base">{formatCurrency(billingSummary.revenueByMethod.troca || 0)}</p>
               </div>
               <div>
                 <p className="text-muted-foreground">Total Transacionado</p>
-                <p className="font-semibold text-lg">{billingSummary.totalGramsSold.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}g</p>
+                <p className="font-semibold text-base">{billingSummary.totalGramsSold.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}g</p>
               </div>
-               <div>
-                <p className="text-muted-foreground">Valor Pago nos Produtos</p>
-                <p className="font-semibold text-lg">{formatCurrency(billingSummary.totalCost)}</p>
+              <div>
+                <p className="text-muted-foreground">Custo dos Produtos</p>
+                <p className="font-semibold text-base">{formatCurrency(billingSummary.totalCost)}</p>
               </div>
                <div>
                 <p className="text-muted-foreground">Estoque Atual</p>
-                <p className="font-semibold text-lg">{billingSummary.currentStock.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}g</p>
+                <p className="font-semibold text-base">{billingSummary.currentStock.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}g</p>
               </div>
             </div>
           </CardContent>
