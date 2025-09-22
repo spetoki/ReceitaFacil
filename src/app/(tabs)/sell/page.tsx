@@ -31,16 +31,16 @@ export default function SellPage() {
     <div className="container mx-auto p-4 max-w-md">
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle>Sell Product</CardTitle>
-          <CardDescription>Current stock: {stock.toLocaleString()}g</CardDescription>
+          <CardTitle>Vender Produto</CardTitle>
+          <CardDescription>Estoque atual: {stock.toLocaleString('pt-BR')}g</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="grams">Grams (g)</Label>
+            <Label htmlFor="grams">Gramas (g)</Label>
             <Input 
               id="grams"
               type="number" 
-              placeholder="e.g., 250"
+              placeholder="ex: 250"
               value={grams}
               onChange={(e) => setGrams(e.target.value)}
               className="text-lg h-16 p-6"
@@ -49,20 +49,20 @@ export default function SellPage() {
             />
           </div>
           <div className="text-center p-4 bg-muted/50 rounded-md">
-            <p className="text-sm text-muted-foreground">Total Price</p>
+            <p className="text-sm text-muted-foreground">Preço Total</p>
             <p className="text-4xl font-bold text-primary">
-              ${calculatedPrice.toFixed(2)}
+              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(calculatedPrice)}
             </p>
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-2">
           <Button onClick={handleSell} className="w-full" size="lg" disabled={!grams || parseFloat(grams) <= 0 || loading}>
-            Confirm Sale
+            Confirmar Venda
           </Button>
           {lastSale && (
             <Button onClick={handleUndo} variant="ghost" className="w-full text-muted-foreground">
               <Undo2 className="mr-2 h-4 w-4" />
-              Undo Last Sale ({lastSale.grams}g)
+              Desfazer Última Venda ({lastSale.grams}g)
             </Button>
           )}
         </CardFooter>

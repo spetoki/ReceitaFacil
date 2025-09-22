@@ -4,6 +4,7 @@ import { useStock } from '@/hooks/use-stock';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -13,13 +14,13 @@ export default function HistoryPage() {
   const { history, loading, clearHistory } = useStock();
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount);
   }
 
   return (
     <div className="container mx-auto p-4 max-w-md h-full flex flex-col">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-3xl font-bold text-foreground">Sales History</h1>
+        <h1 className="text-3xl font-bold text-foreground">Histórico de Vendas</h1>
         {!loading && history.length > 0 && (
           <AlertDialog>
             <AlertDialogTrigger asChild>
@@ -29,14 +30,14 @@ export default function HistoryPage() {
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will permanently delete your entire sales history. This action cannot be undone.
+                  Isso excluirá permanentemente todo o seu histórico de vendas. Esta ação não pode ser desfeita.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={clearHistory}>Continue</AlertDialogAction>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={clearHistory}>Continuar</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
@@ -58,15 +59,15 @@ export default function HistoryPage() {
               ))}
               {!loading && history.length === 0 && (
                 <div className="text-center py-24 h-full flex flex-col justify-center items-center">
-                  <p className="text-lg font-medium text-muted-foreground">No sales recorded yet.</p>
-                  <p className="text-sm text-muted-foreground">Go to the 'Sell' tab to make your first sale!</p>
+                  <p className="text-lg font-medium text-muted-foreground">Nenhuma venda registrada ainda.</p>
+                  <p className="text-sm text-muted-foreground">Vá para a guia 'Vender' para fazer sua primeira venda!</p>
                 </div>
               )}
               {!loading && history.map((sale) => (
                 <div key={sale.id} className="flex justify-between items-center p-3 rounded-lg border bg-card">
                   <div>
-                    <p className="font-semibold">{sale.grams.toLocaleString()}g sold</p>
-                    <p className="text-sm text-muted-foreground">{format(new Date(sale.date), "MMM d, yyyy 'at' h:mm a")}</p>
+                    <p className="font-semibold">{sale.grams.toLocaleString('pt-BR')}g vendidos</p>
+                    <p className="text-sm text-muted-foreground">{format(new Date(sale.date), "d MMM, yyyy 'às' HH:mm", { locale: ptBR })}</p>
                   </div>
                   <p className="font-semibold text-primary">{formatCurrency(sale.total)}</p>
                 </div>

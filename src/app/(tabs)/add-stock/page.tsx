@@ -24,16 +24,16 @@ export default function AddStockPage() {
     <div className="container mx-auto p-4 max-w-md">
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle>Add Stock</CardTitle>
-          <CardDescription>Enter the amount in grams to add to your inventory.</CardDescription>
+          <CardTitle>Adicionar Estoque</CardTitle>
+          <CardDescription>Insira a quantidade em gramas para adicionar ao seu inventário.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <Label htmlFor="grams">Grams (g)</Label>
+            <Label htmlFor="grams">Gramas (g)</Label>
             <Input 
               id="grams"
               type="number" 
-              placeholder="e.g., 1000"
+              placeholder="ex: 1000"
               value={grams}
               onChange={(e) => setGrams(e.target.value)}
               className="text-lg h-16 p-6"
@@ -44,7 +44,7 @@ export default function AddStockPage() {
         </CardContent>
         <CardFooter>
           <Button onClick={handleAddStock} className="w-full" size="lg" disabled={!grams || parseFloat(grams) <= 0 || loading}>
-            Add to Stock
+            Adicionar ao Estoque
           </Button>
         </CardFooter>
       </Card>

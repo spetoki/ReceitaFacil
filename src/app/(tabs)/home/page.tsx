@@ -13,14 +13,14 @@ export default function HomePage() {
     <div className="container mx-auto p-4 max-w-md flex flex-col justify-center h-full">
       <Card className="text-center shadow-lg border-2 bg-card/80">
         <CardHeader>
-          <CardTitle className="text-muted-foreground font-medium text-lg">Current Stock</CardTitle>
+          <CardTitle className="text-muted-foreground font-medium text-lg">Estoque Atual</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
             <Skeleton className="h-20 w-3/4 mx-auto" />
           ) : (
             <p className="text-7xl font-bold text-primary">
-              {stock.toLocaleString('en-US')}
+              {stock.toLocaleString('pt-BR')}
               <span className="text-4xl text-muted-foreground ml-2">g</span>
             </p>
           )}
@@ -31,13 +31,13 @@ export default function HomePage() {
         <Button asChild size="lg" className="h-24 text-lg font-semibold rounded-xl shadow-md">
           <Link href="/sell">
             <ArrowDownCircle className="mr-2 h-6 w-6" />
-            Sell
+            Vender
           </Link>
         </Button>
         <Button asChild size="lg" variant="secondary" className="h-24 text-lg font-semibold rounded-xl shadow-md bg-accent text-accent-foreground hover:bg-accent/80">
           <Link href="/add-stock">
             <ArrowUpCircle className="mr-2 h-6 w-6" />
-            Add Stock
+            Adicionar
           </Link>
         </Button>
       </div>

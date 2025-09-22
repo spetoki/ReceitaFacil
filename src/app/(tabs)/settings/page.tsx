@@ -18,42 +18,42 @@ export default function SettingsPage() {
   }, [pricePerGram, loading]);
 
   const handleSave = () => {
-    const newPrice = parseFloat(price);
+    const newPrice = parseFloat(price.replace(',', '.'));
     setPricePerGram(newPrice);
   };
 
-  const hasChanged = price !== '' && parseFloat(price) !== pricePerGram;
+  const hasChanged = price !== '' && parseFloat(price.replace(',', '.')) !== pricePerGram;
 
   return (
     <div className="container mx-auto p-4 max-w-md">
-      <h1 className="text-3xl font-bold text-foreground mb-4">Settings</h1>
+      <h1 className="text-3xl font-bold text-foreground mb-4">Configurações</h1>
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle>Price per Gram</CardTitle>
-          <CardDescription>Set the price that will be used for all future sales.</CardDescription>
+          <CardTitle>Preço por Grama</CardTitle>
+          <CardDescription>Defina o preço que será usado para todas as vendas futuras.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <Label htmlFor="price">Price ($)</Label>
+            <Label htmlFor="price">Preço (R$)</Label>
             <div className="flex items-center gap-2">
-              <span className="text-muted-foreground text-lg">$</span>
+              <span className="text-muted-foreground text-lg">R$</span>
               <Input 
                 id="price"
-                type="number"
-                placeholder="e.g., 0.10"
+                type="text"
+                placeholder="ex: 0,10"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 className="text-lg h-16 p-6 flex-1"
                 inputMode="decimal"
                 disabled={loading}
               />
-               <span className="text-muted-foreground">/ gram</span>
+               <span className="text-muted-foreground">/ grama</span>
             </div>
           </div>
         </CardContent>
         <CardFooter>
           <Button onClick={handleSave} className="w-full" size="lg" disabled={loading || !hasChanged}>
-            Save Changes
+            Salvar Alterações
           </Button>
         </CardFooter>
       </Card>

@@ -49,21 +49,21 @@ export function useStock() {
 
   const addStock = useCallback((grams: number) => {
     if (isNaN(grams) || grams <= 0) {
-      toast({ variant: 'destructive', title: 'Invalid amount', description: 'Please enter a positive number.' });
+      toast({ variant: 'destructive', title: 'Valor inválido', description: 'Por favor, insira um número positivo.' });
       return false;
     }
     setData(prev => ({ ...prev, stock: prev.stock + grams }));
-    toast({ title: 'Stock added', description: `${grams.toLocaleString()}g have been added to your stock.` });
+    toast({ title: 'Estoque adicionado', description: `${grams.toLocaleString('pt-BR')}g foram adicionados ao seu estoque.` });
     return true;
   }, [toast]);
 
   const sell = useCallback((grams: number) => {
     if (isNaN(grams) || grams <= 0) {
-      toast({ variant: 'destructive', title: 'Invalid amount', description: 'Please enter a positive number.' });
+      toast({ variant: 'destructive', title: 'Valor inválido', description: 'Por favor, insira um número positivo.' });
       return false;
     }
     if (grams > data.stock) {
-      toast({ variant: 'destructive', title: 'Not enough stock', description: 'You cannot sell more than you have.' });
+      toast({ variant: 'destructive', title: 'Estoque insuficiente', description: 'Você não pode vender mais do que tem.' });
       return false;
     }
 
@@ -81,14 +81,14 @@ export function useStock() {
       history: [sale, ...prev.history],
       lastSale: sale,
     }));
-    toast({ title: 'Sale confirmed', description: `Sold ${grams.toLocaleString()}g for $${sale.total.toFixed(2)}.` });
+    toast({ title: 'Venda confirmada', description: `Vendido ${grams.toLocaleString('pt-BR')}g por ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(sale.total)}.` });
     return true;
   }, [data.stock, data.pricePerGram, toast]);
 
   const undoLastSale = useCallback(() => {
     const saleToUndo = data.lastSale;
     if (!saleToUndo) {
-      toast({ variant: 'destructive', title: 'No sale to undo', description: 'There is no recent sale to undo.' });
+      toast({ variant: 'destructive', title: 'Nenhuma venda para desfazer', description: 'Não há venda recente para desfazer.' });
       return;
     }
     
@@ -101,22 +101,22 @@ export function useStock() {
       history: historyWithoutLast,
       lastSale: nextLastSale,
     }));
-    toast({ title: 'Sale undone', description: `Restored ${saleToUndo.grams.toLocaleString()}g to stock.` });
+    toast({ title: 'Venda desfeita', description: `Restaurado ${saleToUndo.grams.toLocaleString('pt-BR')}g para o estoque.` });
   }, [data.lastSale, data.history, toast]);
 
   const setPricePerGram = useCallback((price: number) => {
     if (isNaN(price) || price < 0) {
-      toast({ variant: 'destructive', title: 'Invalid price', description: 'Please enter a non-negative number.' });
+      toast({ variant: 'destructive', title: 'Preço inválido', description: 'Por favor, insira um número não negativo.' });
       return false;
     }
     setData(prev => ({ ...prev, pricePerGram: price }));
-    toast({ title: 'Price updated', description: `Price per gram is now $${price.toFixed(2)}.` });
+    toast({ title: 'Preço atualizado', description: `O preço por grama agora é ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(price)}.` });
     return true;
   }, [toast]);
   
   const clearHistory = useCallback(() => {
     setData(prev => ({ ...prev, history: [] }));
-    toast({ title: 'Sales history cleared.' });
+    toast({ title: 'Histórico de vendas apagado.' });
   }, [toast]);
 
   return {

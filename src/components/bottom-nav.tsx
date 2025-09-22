@@ -6,11 +6,11 @@ import { Home, ArrowDownCircle, ArrowUpCircle, History, Settings } from 'lucide-
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { href: '/home', label: 'Home', icon: Home },
-  { href: '/sell', label: 'Sell', icon: ArrowDownCircle },
-  { href: '/add-stock', label: 'Add', icon: ArrowUpCircle },
-  { href: '/history', label: 'History', icon: History },
-  { href: '/settings', label: 'Settings', icon: Settings },
+  { href: '/home', label: 'Início', icon: Home },
+  { href: '/sell', label: 'Vender', icon: ArrowDownCircle },
+  { href: '/add-stock', label: 'Adicionar', icon: ArrowUpCircle },
+  { href: '/history', label: 'Histórico', icon: History },
+  { href: '/settings', label: 'Config.', icon: Settings },
 ];
 
 export default function BottomNav() {
