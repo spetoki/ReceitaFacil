@@ -10,12 +10,14 @@ import { Label } from '@/components/ui/label';
 
 export default function AddStockPage() {
   const [grams, setGrams] = useState('');
+  const [cost, setCost] = useState('');
   const { addStock, loading } = useStock();
   const router = useRouter();
 
   const handleAddStock = () => {
     const amount = parseFloat(grams);
-    if(addStock(amount)) {
+    const costAmount = cost ? parseFloat(cost.replace(',', '.')) : undefined;
+    if(addStock(amount, costAmount)) {
       router.push('/home');
     }
   };
@@ -25,9 +27,9 @@ export default function AddStockPage() {
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle>Adicionar Estoque</CardTitle>
-          <CardDescription>Insira a quantidade em gramas para adicionar ao seu inventário.</CardDescription>
+          <CardDescription>Insira a quantidade em gramas para adicionar ao seu inventário e o custo, se aplicável.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="grams">Gramas (g)</Label>
             <Input 
@@ -39,6 +41,18 @@ export default function AddStockPage() {
               className="text-lg h-16 p-6"
               inputMode="decimal"
               autoFocus
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="cost">Valor Pago (R$) - Opcional</Label>
+            <Input 
+              id="cost"
+              type="text" 
+              placeholder="ex: 100,00"
+              value={cost}
+              onChange={(e) => setCost(e.target.value)}
+              className="text-lg h-16 p-6"
+              inputMode="decimal"
             />
           </div>
         </CardContent>

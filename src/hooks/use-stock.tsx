@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, createContext, useContext, type ReactNode } from 'react';
-import type { Sale, StockData } from '@/lib/types';
+import type { Sale, StockData, StockAddition } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 
 const STORAGE_KEY = 'gramstracker_data';
@@ -13,6 +13,7 @@ const initialData: StockData = {
   stock: 5000,
   pricePerGram: 0.10,
   history: [],
+  stockAdditions: [],
   lastSale: undefined,
 };
 
@@ -23,7 +24,12 @@ function getInitialState(): StockData {
   }
   try {
     const item = window.localStorage.getItem(STORAGE_KEY);
-    return item ? JSON.parse(item) : initialData;
+    const parsed = item ? JSON.parse(item) : initialData;
+    // Ensure stockAdditions exists for backward compatibility
+    if (!parsed.stockAdditions) {
+      parsed.stockAdditions = [];
+    }
+    return parsed;
   } catch (error) {
     console.warn(`Error reading localStorage key “${STORAGE_KEY}”:`, error);
     return initialData;
@@ -33,7 +39,7 @@ function getInitialState(): StockData {
 interface StockContextType extends StockData {
   loading: boolean;
   isHistoryAuthorized: boolean;
-  addStock: (grams: number) => boolean;
+  addStock: (grams: number, cost?: number) => boolean;
   sell: (grams: number) => boolean;
   undoLastSale: () => void;
   setPricePerGram: (price: number) => boolean;
@@ -65,12 +71,24 @@ export function StockProvider({ children }: { children: ReactNode }) {
     }
   }, [data, loading]);
 
-  const addStock = useCallback((grams: number) => {
+  const addStock = useCallback((grams: number, cost?: number) => {
     if (isNaN(grams) || grams <= 0) {
-      toast({ variant: 'destructive', title: 'Valor inválido', description: 'Por favor, insira um número positivo.' });
+      toast({ variant: 'destructive', title: 'Valor inválido', description: 'Por favor, insira um número positivo para as gramas.' });
       return false;
     }
-    setData(prev => ({ ...prev, stock: prev.stock + grams }));
+    
+    const newStockAddition: StockAddition = {
+      id: new Date().toISOString() + Math.random(),
+      grams,
+      cost,
+      date: new Date().toISOString(),
+    };
+
+    setData(prev => ({
+       ...prev, 
+       stock: prev.stock + grams,
+       stockAdditions: [newStockAddition, ...(prev.stockAdditions || [])]
+    }));
     toast({ title: 'Estoque adicionado', description: `${grams.toLocaleString('pt-BR')}g foram adicionados ao seu estoque.` });
     return true;
   }, [toast]);
