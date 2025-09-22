@@ -1,6 +1,7 @@
 export interface Sale {
   id: string;
   type: 'sale' | 'trade'; // 'sale' for money, 'trade' for object exchange
+  paymentMethod?: 'dinheiro' | 'pix' | 'troca';
   grams: number;
   pricePerGram: number; // Stays for consistency, but might be 0 for trades
   total: number; // Financial value of the sale, or value of traded item

@@ -11,7 +11,7 @@ interface StockContextType extends StockData {
   loading: boolean;
   isHistoryAuthorized: boolean;
   addStock: (grams: number, cost?: number) => boolean;
-  sell: (grams: number) => boolean;
+  sell: (grams: number, paymentMethod: 'dinheiro' | 'pix') => boolean;
   trade: (grams: number, description: string, value?: number) => boolean;
   undoLastSale: () => void;
   setPricePerGram: (price: number) => boolean;

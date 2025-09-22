@@ -54,7 +54,7 @@ interface SettingsContextType {
   loading: boolean;
   isHistoryAuthorized: boolean;
   addStock: (grams: number, cost?: number) => boolean;
-  sell: (grams: number) => boolean;
+  sell: (grams: number, paymentMethod: 'dinheiro' | 'pix') => boolean;
   trade: (grams: number, description: string, value?: number) => boolean;
   undoLastSale: () => void;
   setPricePerGram: (price: number) => boolean;
@@ -194,7 +194,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     return true;
   }, [stockData.stock, toast]);
 
-  const sell = useCallback((grams: number) => {
+  const sell = useCallback((grams: number, paymentMethod: 'dinheiro' | 'pix') => {
      if(stockData.pricePerGram <= 0) {
       toast({ variant: 'destructive', title: 'Preço por grama não definido', description: 'Por favor, defina um preço por grama nas configurações antes de vender.' });
       return false;
@@ -202,6 +202,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     
     const saleDetails = {
       type: 'sale' as const,
+      paymentMethod,
       pricePerGram: stockData.pricePerGram,
       total: grams * stockData.pricePerGram,
     };
@@ -221,6 +222,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
     const tradeDetails = {
       type: 'trade' as const,
+      paymentMethod: 'troca' as const,
       pricePerGram: 0,
       total: value || 0,
       tradeDescription: description,

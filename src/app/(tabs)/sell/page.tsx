@@ -10,10 +10,14 @@ import { Label } from '@/components/ui/label';
 import { Undo2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+
+type PaymentMethod = 'dinheiro' | 'pix';
 
 export default function SellPage() {
   const [grams, setGrams] = useState('');
   const [money, setMoney] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('dinheiro');
   const [tradeGrams, setTradeGrams] = useState('');
   const [tradeDescription, setTradeDescription] = useState('');
   const [tradeValue, setTradeValue] = useState('');
@@ -22,7 +26,7 @@ export default function SellPage() {
 
   const handleSellByGrams = () => {
     const amount = parseFloat(grams);
-    if (sell(amount)) {
+    if (sell(amount, paymentMethod)) {
       router.push('/home');
     }
   };
@@ -30,7 +34,7 @@ export default function SellPage() {
   const handleSellByMoney = () => {
     const amount = parseFloat(money.replace(',', '.'));
     const gramsToSell = amount / pricePerGram;
-    if (sell(gramsToSell)) {
+    if (sell(gramsToSell, paymentMethod)) {
         router.push('/home');
     }
   };
@@ -72,7 +76,7 @@ export default function SellPage() {
               <TabsTrigger value="money">Por Dinheiro</TabsTrigger>
               <TabsTrigger value="trade">Troca</TabsTrigger>
             </TabsList>
-            <TabsContent value="grams" className="pt-4">
+            <TabsContent value="grams" className="pt-4 space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="grams">Gramas (g)</Label>
                 <Input 
@@ -86,17 +90,30 @@ export default function SellPage() {
                   autoFocus
                 />
               </div>
-              <div className="text-center p-4 mt-6 bg-muted/50 rounded-md">
+               <div className="space-y-3">
+                <Label>Forma de Pagamento</Label>
+                <RadioGroup defaultValue="dinheiro" value={paymentMethod} onValueChange={(value: PaymentMethod) => setPaymentMethod(value)} className="flex gap-4">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="dinheiro" id="r1" />
+                    <Label htmlFor="r1">Dinheiro</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="pix" id="r2" />
+                    <Label htmlFor="r2">Pix</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+              <div className="text-center p-4 mt-2 bg-muted/50 rounded-md">
                 <p className="text-sm text-muted-foreground">Preço Total</p>
                 <p className="text-4xl font-bold text-primary">
                   {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(calculatedPriceFromGrams)}
                 </p>
               </div>
-               <Button onClick={handleSellByGrams} className="w-full mt-6" size="lg" disabled={!grams || parseFloat(grams) <= 0 || loading}>
+               <Button onClick={handleSellByGrams} className="w-full mt-2" size="lg" disabled={!grams || parseFloat(grams) <= 0 || loading}>
                 Confirmar Venda
               </Button>
             </TabsContent>
-            <TabsContent value="money" className="pt-4">
+            <TabsContent value="money" className="pt-4 space-y-4">
                <div className="space-y-2">
                 <Label htmlFor="money">Dinheiro (R$)</Label>
                 <Input 
@@ -110,14 +127,27 @@ export default function SellPage() {
                   autoFocus
                 />
               </div>
-              <div className="text-center p-4 mt-6 bg-muted/50 rounded-md">
+               <div className="space-y-3">
+                <Label>Forma de Pagamento</Label>
+                 <RadioGroup defaultValue="dinheiro" value={paymentMethod} onValueChange={(value: PaymentMethod) => setPaymentMethod(value)} className="flex gap-4">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="dinheiro" id="r3" />
+                    <Label htmlFor="r3">Dinheiro</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="pix" id="r4" />
+                    <Label htmlFor="r4">Pix</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+              <div className="text-center p-4 mt-2 bg-muted/50 rounded-md">
                 <p className="text-sm text-muted-foreground">Gramas Correspondentes</p>
                 <p className="text-4xl font-bold text-primary">
                   {calculatedGramsFromMoney.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}
                   <span className="text-2xl text-muted-foreground ml-1">g</span>
                 </p>
               </div>
-              <Button onClick={handleSellByMoney} className="w-full mt-6" size="lg" disabled={!money || parseFloat(money.replace(',', '.')) <= 0 || loading || pricePerGram <= 0}>
+              <Button onClick={handleSellByMoney} className="w-full mt-2" size="lg" disabled={!money || parseFloat(money.replace(',', '.')) <= 0 || loading || pricePerGram <= 0}>
                 Confirmar Venda
               </Button>
             </TabsContent>

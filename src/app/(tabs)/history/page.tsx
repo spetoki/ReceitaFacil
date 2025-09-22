@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, type ReactNode } from 'react';
 import { useStock } from '@/hooks/use-stock';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -12,7 +12,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Trash2, Lock, TrendingUp, Repeat } from 'lucide-react';
+import { Trash2, Lock, TrendingUp, Repeat, DollarSign, ScanLine } from 'lucide-react';
+import type { Sale } from '@/lib/types';
 
 export default function HistoryPage() {
   const { history, stockAdditions, loading, clearHistory, isHistoryAuthorized, authorizeHistory, deauthorizeHistory, stock } = useStock();
@@ -42,6 +43,29 @@ export default function HistoryPage() {
 
     return { totalRevenue, totalGramsSold, totalCost, currentStock };
   }, [history, stockAdditions, stock]);
+
+  const getPaymentMethodIcon = (paymentMethod?: Sale['paymentMethod']): ReactNode => {
+    switch (paymentMethod) {
+      case 'dinheiro':
+        return <DollarSign className="h-4 w-4 text-muted-foreground" title="Dinheiro" />;
+      case 'pix':
+        return <ScanLine className="h-4 w-4 text-muted-foreground" title="Pix" />;
+      case 'troca':
+        return <Repeat className="h-4 w-4 text-muted-foreground" title="Troca" />;
+      default:
+        return null;
+    }
+  };
+
+  const getPaymentMethodLabel = (paymentMethod?: Sale['paymentMethod']): string => {
+    switch (paymentMethod) {
+      case 'dinheiro': return 'em dinheiro';
+      case 'pix': return 'via Pix';
+      case 'troca': return 'trocados';
+      default: return 'vendidos';
+    }
+  }
+
 
   if (!isHistoryAuthorized) {
     return (
@@ -165,10 +189,14 @@ export default function HistoryPage() {
               )}
               {!loading && history.map((item) => (
                 <div key={item.id} className="flex justify-between items-start p-3 rounded-lg border bg-card">
-                  <div>
-                    {item.type === 'trade' ? (
+                  <div className="flex-1">
+                     <div className="flex items-center font-semibold gap-1.5">
+                       {getPaymentMethodIcon(item.paymentMethod)}
+                       <p>{item.grams.toLocaleString('pt-BR', {maximumFractionDigits: 2})}g {getPaymentMethodLabel(item.paymentMethod)}</p>
+                     </div>
+
+                    {item.type === 'trade' && (
                        <>
-                        <p className="font-semibold flex items-center gap-1.5"><Repeat className="h-4 w-4 text-muted-foreground" /> {item.grams.toLocaleString('pt-BR', {maximumFractionDigits: 2})}g trocados</p>
                         <p className="text-sm text-muted-foreground pl-1 mt-1">
                           <span className="font-medium">Objeto: </span>{item.tradeDescription}
                         </p>
@@ -178,8 +206,6 @@ export default function HistoryPage() {
                            </p>
                        )}
                       </>
-                    ) : (
-                       <p className="font-semibold">{item.grams.toLocaleString('pt-BR', {maximumFractionDigits: 2})}g vendidos</p>
                     )}
                     <p className="text-sm text-muted-foreground mt-1">{format(new Date(item.date), "d MMM, yyyy 'às' HH:mm", { locale: ptBR })}</p>
                   </div>
