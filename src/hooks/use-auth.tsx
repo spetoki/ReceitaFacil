@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useEffect, useCallback, ReactNode 
 import Cookies from 'js-cookie';
 
 const AUTH_COOKIE_NAME = 'gramstracker_auth';
-const ACCESS_CODE = '123456'; // Hardcoded access code
+const ACCESS_CODES = ['349812', '765234', '981245', '123789', '567890', '234567', '890123', '456789', '678901', '012345']; // Lista de códigos de acesso
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback((code: string): boolean => {
-    if (code === ACCESS_CODE) {
+    if (ACCESS_CODES.includes(code)) {
       Cookies.set(AUTH_COOKIE_NAME, 'true', { expires: 7 }); // Expires in 7 days
       setIsAuthenticated(true);
       return true;
