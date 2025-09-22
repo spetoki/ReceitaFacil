@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'GramsTracker',
+  title: 'Receita Fácil',
   description: 'Um aplicativo móvel minimalista para vender e gerenciar o estoque de um único produto, vendido por grama.',
 };
 
