@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Trash2, Lock, TrendingUp } from 'lucide-react';
 
 export default function HistoryPage() {
-  const { history, loading, clearHistory, isHistoryAuthorized, authorizeHistory, deauthorizeHistory } = useStock();
+  const { history, stockAdditions, loading, clearHistory, isHistoryAuthorized, authorizeHistory, deauthorizeHistory } = useStock();
   const [pin, setPin] = useState('');
 
   useEffect(() => {
@@ -35,22 +35,12 @@ export default function HistoryPage() {
   }
 
   const billingSummary = useMemo(() => {
-    if (!history || history.length === 0) {
-      return {
-        totalRevenue: 0,
-        totalGramsSold: 0,
-        numberOfSales: 0,
-        averageTicket: 0,
-      };
-    }
-
     const totalRevenue = history.reduce((acc, sale) => acc + sale.total, 0);
     const totalGramsSold = history.reduce((acc, sale) => acc + sale.grams, 0);
-    const numberOfSales = history.length;
-    const averageTicket = numberOfSales > 0 ? totalRevenue / numberOfSales : 0;
+    const totalCost = (stockAdditions || []).reduce((acc, addition) => acc + (addition.cost || 0), 0);
 
-    return { totalRevenue, totalGramsSold, numberOfSales, averageTicket };
-  }, [history]);
+    return { totalRevenue, totalGramsSold, totalCost };
+  }, [history, stockAdditions]);
 
   if (!isHistoryAuthorized) {
     return (
@@ -119,7 +109,7 @@ export default function HistoryPage() {
         )}
       </div>
 
-      {!loading && history.length > 0 && (
+      {!loading && (history.length > 0 || (stockAdditions && stockAdditions.length > 0)) && (
         <Card className="mb-4 shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center text-lg">
@@ -136,6 +126,10 @@ export default function HistoryPage() {
               <div>
                 <p className="text-muted-foreground">Total Vendido</p>
                 <p className="font-semibold text-lg">{billingSummary.totalGramsSold.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}g</p>
+              </div>
+               <div>
+                <p className="text-muted-foreground">Valor Pago nos Produtos</p>
+                <p className="font-semibold text-lg">{formatCurrency(billingSummary.totalCost)}</p>
               </div>
             </div>
           </CardContent>
