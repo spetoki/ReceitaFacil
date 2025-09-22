@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useStock } from '@/hooks/use-stock';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -8,13 +9,69 @@ import { ptBR } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Trash2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Trash2, Lock } from 'lucide-react';
 
 export default function HistoryPage() {
-  const { history, loading, clearHistory } = useStock();
+  const { history, loading, clearHistory, isHistoryAuthorized, authorizeHistory, deauthorizeHistory } = useStock();
+  const [pin, setPin] = useState('');
+
+  useEffect(() => {
+    // De-authorize on leaving the page
+    return () => {
+      deauthorizeHistory();
+    };
+  }, [deauthorizeHistory]);
+
+  const handlePinSubmit = () => {
+    authorizeHistory(pin);
+    setPin('');
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount);
+  }
+
+  if (!isHistoryAuthorized) {
+    return (
+      <Dialog open={!isHistoryAuthorized} onOpenChange={(isOpen) => { if (!isOpen) deauthorizeHistory() }}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><Lock /> Acesso Restrito</DialogTitle>
+            <DialogDescription>
+              Para acessar o histórico de vendas, por favor, insira a senha de 4 dígitos.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="pin" className="text-right">
+                Senha
+              </Label>
+              <Input
+                id="pin"
+                type="password"
+                maxLength={4}
+                value={pin}
+                onChange={(e) => setPin(e.target.value)}
+                className="col-span-3"
+                inputMode="numeric"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handlePinSubmit();
+                  }
+                }}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={handlePinSubmit} disabled={pin.length !== 4}>Acessar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
   }
 
   return (

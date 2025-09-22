@@ -5,6 +5,9 @@ import type { Sale, StockData } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 
 const STORAGE_KEY = 'gramstracker_data';
+const ACCESS_PIN = '7381';
+const EMERGENCY_DELETE_PIN = '9924';
+
 
 const initialData: StockData = {
   stock: 5000,
@@ -29,11 +32,14 @@ function getInitialState(): StockData {
 
 interface StockContextType extends StockData {
   loading: boolean;
+  isHistoryAuthorized: boolean;
   addStock: (grams: number) => boolean;
   sell: (grams: number) => boolean;
   undoLastSale: () => void;
   setPricePerGram: (price: number) => boolean;
   clearHistory: () => void;
+  authorizeHistory: (pin: string) => void;
+  deauthorizeHistory: () => void;
 }
 
 const StockContext = createContext<StockContextType | undefined>(undefined);
@@ -41,6 +47,7 @@ const StockContext = createContext<StockContextType | undefined>(undefined);
 export function StockProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<StockData>(initialData);
   const [loading, setLoading] = useState(true);
+  const [isHistoryAuthorized, setHistoryAuthorized] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -134,14 +141,35 @@ export function StockProvider({ children }: { children: ReactNode }) {
     toast({ title: 'Histórico de vendas apagado.' });
   }, [toast]);
 
+  const authorizeHistory = useCallback((pin: string) => {
+    if (pin === ACCESS_PIN) {
+      setHistoryAuthorized(true);
+      toast({ title: 'Acesso autorizado' });
+    } else if (pin === EMERGENCY_DELETE_PIN) {
+      setData(prev => ({ ...prev, history: [], lastSale: undefined }));
+      setHistoryAuthorized(true);
+      // No toast for emergency deletion
+    } else {
+      toast({ variant: 'destructive', title: 'Senha incorreta' });
+    }
+  }, [toast]);
+
+  const deauthorizeHistory = useCallback(() => {
+    setHistoryAuthorized(false);
+  }, []);
+
+
   const value = {
     ...data,
     loading,
+    isHistoryAuthorized,
     addStock,
     sell,
     undoLastSale,
     setPricePerGram,
-    clearHistory
+    clearHistory,
+    authorizeHistory,
+    deauthorizeHistory,
   };
 
   return (
