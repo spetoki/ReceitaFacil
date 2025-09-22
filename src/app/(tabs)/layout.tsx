@@ -1,0 +1,13 @@
+import type { ReactNode } from 'react';
+import BottomNav from '@/components/bottom-nav';
+
+export default function TabsLayout({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex flex-col min-h-screen">
+      <main className="flex-1 pb-24 pt-4">
+        {children}
+      </main>
+      <BottomNav />
+    </div>
+  );
+}
