@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
-import { ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
+import { ArrowDownCircle } from 'lucide-react';
 
 export default function HomePage() {
   const { stock, loading } = useStock();
@@ -27,17 +27,11 @@ export default function HomePage() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-2 gap-4 mt-8">
+      <div className="grid grid-cols-1 gap-4 mt-8">
         <Button asChild size="lg" className="h-24 text-lg font-semibold rounded-xl shadow-md">
           <Link href="/sell">
             <ArrowDownCircle className="mr-2 h-6 w-6" />
             Vender
-          </Link>
-        </Button>
-        <Button asChild size="lg" variant="secondary" className="h-24 text-lg font-semibold rounded-xl shadow-md bg-accent text-accent-foreground hover:bg-accent/80">
-          <Link href="/add-stock">
-            <ArrowUpCircle className="mr-2 h-6 w-6" />
-            Adicionar
           </Link>
         </Button>
       </div>
