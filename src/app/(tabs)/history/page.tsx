@@ -137,14 +137,6 @@ export default function HistoryPage() {
                 <p className="text-muted-foreground">Total Vendido</p>
                 <p className="font-semibold text-lg">{billingSummary.totalGramsSold.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}g</p>
               </div>
-              <div>
-                <p className="text-muted-foreground">Nº de Vendas</p>
-                <p className="font-semibold text-lg">{billingSummary.numberOfSales}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Ticket Médio</p>
-                <p className="font-semibold text-lg">{formatCurrency(billingSummary.averageTicket)}</p>
-              </div>
             </div>
           </CardContent>
         </Card>
