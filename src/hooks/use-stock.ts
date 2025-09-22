@@ -66,6 +66,10 @@ export function useStock() {
       toast({ variant: 'destructive', title: 'Estoque insuficiente', description: 'Você não pode vender mais do que tem.' });
       return false;
     }
+    if(data.pricePerGram <= 0) {
+      toast({ variant: 'destructive', title: 'Preço por grama não definido', description: 'Por favor, defina um preço por grama nas configurações antes de vender.' });
+      return false;
+    }
 
     const sale: Sale = {
       id: new Date().toISOString() + Math.random(),
@@ -81,7 +85,7 @@ export function useStock() {
       history: [sale, ...prev.history],
       lastSale: sale,
     }));
-    toast({ title: 'Venda confirmada', description: `Vendido ${grams.toLocaleString('pt-BR')}g por ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(sale.total)}.` });
+    toast({ title: 'Venda confirmada', description: `Vendido ${grams.toLocaleString('pt-BR', {maximumFractionDigits: 2})}g por ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(sale.total)}.` });
     return true;
   }, [data.stock, data.pricePerGram, toast]);
 

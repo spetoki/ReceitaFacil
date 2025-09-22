@@ -66,7 +66,7 @@ export default function HistoryPage() {
               {!loading && history.map((sale) => (
                 <div key={sale.id} className="flex justify-between items-center p-3 rounded-lg border bg-card">
                   <div>
-                    <p className="font-semibold">{sale.grams.toLocaleString('pt-BR')}g vendidos</p>
+                    <p className="font-semibold">{sale.grams.toLocaleString('pt-BR', {maximumFractionDigits: 2})}g vendidos</p>
                     <p className="text-sm text-muted-foreground">{format(new Date(sale.date), "d MMM, yyyy 'às' HH:mm", { locale: ptBR })}</p>
                   </div>
                   <p className="font-semibold text-primary">{formatCurrency(sale.total)}</p>
