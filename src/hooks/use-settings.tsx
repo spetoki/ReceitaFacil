@@ -5,7 +5,7 @@ import type { Sale, StockData, StockAddition } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 
 // --- CONFIGURATION ---
-const ACCESS_KEYS = ['7381', '1234', '5678'];
+const ACCESS_KEYS = ['7381', '1234', '5678', '8352'];
 const MAX_ATTEMPTS = 3;
 const LOCKOUT_BASE_DURATION_MS = 60 * 1000; // 1 minute
 
