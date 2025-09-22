@@ -12,10 +12,10 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Trash2, Lock, TrendingUp } from 'lucide-react';
+import { Trash2, Lock, TrendingUp, Package } from 'lucide-react';
 
 export default function HistoryPage() {
-  const { history, stockAdditions, loading, clearHistory, isHistoryAuthorized, authorizeHistory, deauthorizeHistory } = useStock();
+  const { history, stockAdditions, loading, clearHistory, isHistoryAuthorized, authorizeHistory, deauthorizeHistory, stock } = useStock();
   const [pin, setPin] = useState('');
 
   useEffect(() => {
@@ -38,9 +38,10 @@ export default function HistoryPage() {
     const totalRevenue = history.reduce((acc, sale) => acc + sale.total, 0);
     const totalGramsSold = history.reduce((acc, sale) => acc + sale.grams, 0);
     const totalCost = (stockAdditions || []).reduce((acc, addition) => acc + (addition.cost || 0), 0);
+    const currentStock = stock;
 
-    return { totalRevenue, totalGramsSold, totalCost };
-  }, [history, stockAdditions]);
+    return { totalRevenue, totalGramsSold, totalCost, currentStock };
+  }, [history, stockAdditions, stock]);
 
   if (!isHistoryAuthorized) {
     return (
@@ -109,7 +110,7 @@ export default function HistoryPage() {
         )}
       </div>
 
-      {!loading && (history.length > 0 || (stockAdditions && stockAdditions.length > 0)) && (
+      {!loading && (history.length > 0 || (stockAdditions && stockAdditions.length > 0) || stock > 0) && (
         <Card className="mb-4 shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center text-lg">
@@ -130,6 +131,10 @@ export default function HistoryPage() {
                <div>
                 <p className="text-muted-foreground">Valor Pago nos Produtos</p>
                 <p className="font-semibold text-lg">{formatCurrency(billingSummary.totalCost)}</p>
+              </div>
+               <div>
+                <p className="text-muted-foreground">Estoque Atual</p>
+                <p className="font-semibold text-lg">{billingSummary.currentStock.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}g</p>
               </div>
             </div>
           </CardContent>
