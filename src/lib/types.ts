@@ -1,9 +1,11 @@
 export interface Sale {
   id: string;
+  type: 'sale' | 'trade'; // 'sale' for money, 'trade' for object exchange
   grams: number;
-  pricePerGram: number;
-  total: number;
+  pricePerGram: number; // Stays for consistency, but might be 0 for trades
+  total: number; // Financial value of the sale, 0 for trades
   date: string; // ISO string
+  tradeDescription?: string; // Description of the traded object
 }
 
 export interface StockAddition {

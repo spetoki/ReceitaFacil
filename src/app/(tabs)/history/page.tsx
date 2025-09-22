@@ -12,7 +12,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Trash2, Lock, TrendingUp, Package } from 'lucide-react';
+import { Trash2, Lock, TrendingUp, Package, Repeat } from 'lucide-react';
 
 export default function HistoryPage() {
   const { history, stockAdditions, loading, clearHistory, isHistoryAuthorized, authorizeHistory, deauthorizeHistory, stock } = useStock();
@@ -35,7 +35,7 @@ export default function HistoryPage() {
   }
 
   const billingSummary = useMemo(() => {
-    const totalRevenue = history.reduce((acc, sale) => acc + sale.total, 0);
+    const totalRevenue = history.filter(h => h.type === 'sale').reduce((acc, sale) => acc + sale.total, 0);
     const totalGramsSold = history.reduce((acc, sale) => acc + sale.grams, 0);
     const totalCost = (stockAdditions || []).reduce((acc, addition) => acc + (addition.cost || 0), 0);
     const currentStock = stock;
@@ -98,7 +98,7 @@ export default function HistoryPage() {
               <AlertDialogHeader>
                 <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Isso excluirá permanentemente todo o seu histórico de vendas. Esta ação não pode ser desfeita.
+                  Isso excluirá permanentemente todo o seu histórico de transações. Esta ação não pode ser desfeita.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -125,7 +125,7 @@ export default function HistoryPage() {
                 <p className="font-semibold text-lg">{formatCurrency(billingSummary.totalRevenue)}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Total Vendido</p>
+                <p className="text-muted-foreground">Total Transacionado</p>
                 <p className="font-semibold text-lg">{billingSummary.totalGramsSold.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}g</p>
               </div>
                <div>
@@ -143,7 +143,7 @@ export default function HistoryPage() {
       
       <Card className="flex-1 flex flex-col shadow-lg overflow-hidden">
          <CardHeader className="pt-4 pb-2">
-            <CardTitle className="text-lg">Histórico de Vendas</CardTitle>
+            <CardTitle className="text-lg">Histórico de Transações</CardTitle>
           </CardHeader>
         <CardContent className="p-0 flex-1">
           <ScrollArea className="h-full">
@@ -159,17 +159,28 @@ export default function HistoryPage() {
               ))}
               {!loading && history.length === 0 && (
                 <div className="text-center py-24 h-full flex flex-col justify-center items-center">
-                  <p className="text-lg font-medium text-muted-foreground">Nenhuma venda registrada ainda.</p>
-                  <p className="text-sm text-muted-foreground">Vá para a guia 'Vender' para fazer sua primeira venda!</p>
+                  <p className="text-lg font-medium text-muted-foreground">Nenhuma transação registrada ainda.</p>
+                  <p className="text-sm text-muted-foreground">Vá para a guia 'Vender' para fazer sua primeira transação!</p>
                 </div>
               )}
-              {!loading && history.map((sale) => (
-                <div key={sale.id} className="flex justify-between items-center p-3 rounded-lg border bg-card">
+              {!loading && history.map((item) => (
+                <div key={item.id} className="flex justify-between items-start p-3 rounded-lg border bg-card">
                   <div>
-                    <p className="font-semibold">{sale.grams.toLocaleString('pt-BR', {maximumFractionDigits: 2})}g vendidos</p>
-                    <p className="text-sm text-muted-foreground">{format(new Date(sale.date), "d MMM, yyyy 'às' HH:mm", { locale: ptBR })}</p>
+                    {item.type === 'trade' ? (
+                       <>
+                        <p className="font-semibold flex items-center gap-1.5"><Repeat className="h-4 w-4 text-muted-foreground" /> {item.grams.toLocaleString('pt-BR', {maximumFractionDigits: 2})}g trocados</p>
+                        <p className="text-sm text-muted-foreground pl-1 mt-1">
+                          <span className="font-medium">Objeto: </span>{item.tradeDescription}
+                        </p>
+                      </>
+                    ) : (
+                       <p className="font-semibold">{item.grams.toLocaleString('pt-BR', {maximumFractionDigits: 2})}g vendidos</p>
+                    )}
+                    <p className="text-sm text-muted-foreground mt-1">{format(new Date(item.date), "d MMM, yyyy 'às' HH:mm", { locale: ptBR })}</p>
                   </div>
-                  <p className="font-semibold text-primary">{formatCurrency(sale.total)}</p>
+                  {item.type === 'sale' && (
+                    <p className="font-semibold text-primary">{formatCurrency(item.total)}</p>
+                  )}
                 </div>
               ))}
             </div>

@@ -12,6 +12,7 @@ interface StockContextType extends StockData {
   isHistoryAuthorized: boolean;
   addStock: (grams: number, cost?: number) => boolean;
   sell: (grams: number) => boolean;
+  trade: (grams: number, description: string) => boolean;
   undoLastSale: () => void;
   setPricePerGram: (price: number) => boolean;
   clearHistory: () => void;
@@ -28,6 +29,7 @@ export function StockProvider({ children }: { children: ReactNode }) {
     loading, 
     addStock,
     sell,
+    trade,
     undoLastSale,
     setPricePerGram,
     clearHistory,
@@ -42,6 +44,7 @@ export function StockProvider({ children }: { children: ReactNode }) {
     loading,
     addStock,
     sell,
+    trade,
     undoLastSale,
     setPricePerGram,
     clearHistory,

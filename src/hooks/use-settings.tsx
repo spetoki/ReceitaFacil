@@ -55,6 +55,7 @@ interface SettingsContextType {
   isHistoryAuthorized: boolean;
   addStock: (grams: number, cost?: number) => boolean;
   sell: (grams: number) => boolean;
+  trade: (grams: number, description: string) => boolean;
   undoLastSale: () => void;
   setPricePerGram: (price: number) => boolean;
   clearHistory: () => void;
@@ -167,8 +168,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     return true;
   }, [toast]);
 
-  const sell = useCallback((grams: number) => {
-    if (isNaN(grams) || grams <= 0) {
+  const handleTransaction = useCallback((grams: number, transactionDetails: Partial<Sale>) => {
+     if (isNaN(grams) || grams <= 0) {
       toast({ variant: 'destructive', title: 'Valor inválido', description: 'Por favor, insira um número positivo.' });
       return false;
     }
@@ -176,33 +177,66 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       toast({ variant: 'destructive', title: 'Estoque insuficiente', description: 'Você não pode vender mais do que tem.' });
       return false;
     }
-    if(stockData.pricePerGram <= 0) {
-      toast({ variant: 'destructive', title: 'Preço por grama não definido', description: 'Por favor, defina um preço por grama nas configurações antes de vender.' });
-      return false;
-    }
 
-    const sale: Sale = {
+    const transaction: Sale = {
       id: new Date().toISOString() + Math.random(),
       grams,
-      pricePerGram: stockData.pricePerGram,
-      total: grams * stockData.pricePerGram,
       date: new Date().toISOString(),
-    };
+      ...transactionDetails,
+    } as Sale;
 
     setStockData(prev => ({
       ...prev,
       stock: prev.stock - grams,
-      history: [sale, ...prev.history],
-      lastSale: sale,
+      history: [transaction, ...prev.history],
+      lastSale: transaction,
     }));
-    toast({ title: 'Venda confirmada', description: `Vendido ${grams.toLocaleString('pt-BR', {maximumFractionDigits: 2})}g por ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(sale.total)}.` });
     return true;
-  }, [stockData.stock, stockData.pricePerGram, toast]);
+  }, [stockData.stock, toast]);
+
+  const sell = useCallback((grams: number) => {
+     if(stockData.pricePerGram <= 0) {
+      toast({ variant: 'destructive', title: 'Preço por grama não definido', description: 'Por favor, defina um preço por grama nas configurações antes de vender.' });
+      return false;
+    }
+    
+    const saleDetails = {
+      type: 'sale',
+      pricePerGram: stockData.pricePerGram,
+      total: grams * stockData.pricePerGram,
+    };
+
+    if (handleTransaction(grams, saleDetails)) {
+        toast({ title: 'Venda confirmada', description: `Vendido ${grams.toLocaleString('pt-BR', {maximumFractionDigits: 2})}g por ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(saleDetails.total)}.` });
+        return true;
+    }
+    return false;
+  }, [stockData.pricePerGram, handleTransaction, toast]);
+
+  const trade = useCallback((grams: number, description: string) => {
+    if (!description) {
+      toast({ variant: 'destructive', title: 'Descrição necessária', description: 'Por favor, descreva o objeto trocado.' });
+      return false;
+    }
+
+    const tradeDetails = {
+      type: 'trade',
+      pricePerGram: 0,
+      total: 0,
+      tradeDescription: description,
+    };
+    
+    if (handleTransaction(grams, tradeDetails)) {
+        toast({ title: 'Troca confirmada', description: `${grams.toLocaleString('pt-BR', {maximumFractionDigits: 2})}g trocados por "${description}".` });
+        return true;
+    }
+    return false;
+  }, [handleTransaction, toast]);
 
   const undoLastSale = useCallback(() => {
     const saleToUndo = stockData.lastSale;
     if (!saleToUndo) {
-      toast({ variant: 'destructive', title: 'Nenhuma venda para desfazer', description: 'Não há venda recente para desfazer.' });
+      toast({ variant: 'destructive', title: 'Nenhuma transação para desfazer', description: 'Não há transação recente para desfazer.' });
       return;
     }
     
@@ -215,7 +249,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       history: historyWithoutLast,
       lastSale: nextLastSale,
     }));
-    toast({ title: 'Venda desfeita', description: `Restaurado ${saleToUndo.grams.toLocaleString('pt-BR')}g para o estoque.` });
+    toast({ title: 'Transação desfeita', description: `Restaurado ${saleToUndo.grams.toLocaleString('pt-BR')}g para o estoque.` });
   }, [stockData.lastSale, stockData.history, toast]);
 
   const setPricePerGram = useCallback((price: number) => {
@@ -230,7 +264,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   
   const clearHistory = useCallback(() => {
     setStockData(prev => ({ ...prev, history: [] }));
-    toast({ title: 'Histórico de vendas apagado.' });
+    toast({ title: 'Histórico de transações apagado.' });
   }, [toast]);
 
   const authorizeHistory = useCallback((pin: string) => {
@@ -260,6 +294,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     isHistoryAuthorized,
     addStock,
     sell,
+    trade,
     undoLastSale,
     setPricePerGram,
     clearHistory,
