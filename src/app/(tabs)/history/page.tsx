@@ -16,7 +16,7 @@ import { Trash2, Lock, TrendingUp, Repeat, DollarSign, ScanLine } from 'lucide-r
 import type { Sale } from '@/lib/types';
 
 export default function HistoryPage() {
-  const { history, stockAdditions, loading, clearHistory, isHistoryAuthorized, authorizeHistory, deauthorizeHistory, stock } = useStock();
+  const { history, loading, clearHistory, isHistoryAuthorized, authorizeHistory, deauthorizeHistory } = useStock();
   const [pin, setPin] = useState('');
 
   useEffect(() => {
@@ -45,17 +45,13 @@ export default function HistoryPage() {
     
     const totalRevenue = Object.values(revenueByMethod).reduce((sum, current) => sum + current, 0);
     const totalGramsSold = history.reduce((acc, sale) => acc + sale.grams, 0);
-    const totalCost = (stockAdditions || []).reduce((acc, addition) => acc + (addition.cost || 0), 0);
-    const currentStock = stock;
 
     return { 
       totalRevenue, 
       revenueByMethod,
       totalGramsSold, 
-      totalCost, 
-      currentStock 
     };
-  }, [history, stockAdditions, stock]);
+  }, [history]);
 
   const getPaymentMethodIcon = (paymentMethod?: Sale['paymentMethod']): ReactNode => {
     switch (paymentMethod) {
@@ -147,7 +143,7 @@ export default function HistoryPage() {
         )}
       </div>
 
-      {!loading && (history.length > 0 || (stockAdditions && stockAdditions.length > 0) || stock > 0) && (
+      {!loading && history.length > 0 && (
         <Card className="mb-4 shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center text-lg">
@@ -175,16 +171,8 @@ export default function HistoryPage() {
                 <p className="font-semibold text-base">{formatCurrency(billingSummary.revenueByMethod.troca || 0)}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Total Transacionado</p>
+                <p className="text-muted-foreground">Total Vendido</p>
                 <p className="font-semibold text-base">{billingSummary.totalGramsSold.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}g</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Custo dos Produtos</p>
-                <p className="font-semibold text-base">{formatCurrency(billingSummary.totalCost)}</p>
-              </div>
-               <div>
-                <p className="text-muted-foreground">Estoque Atual</p>
-                <p className="font-semibold text-base">{billingSummary.currentStock.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}g</p>
               </div>
             </div>
           </CardContent>
