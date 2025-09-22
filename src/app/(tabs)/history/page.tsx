@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useStock } from '@/hooks/use-stock';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -12,7 +12,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Trash2, Lock } from 'lucide-react';
+import { Trash2, Lock, TrendingUp } from 'lucide-react';
 
 export default function HistoryPage() {
   const { history, loading, clearHistory, isHistoryAuthorized, authorizeHistory, deauthorizeHistory } = useStock();
@@ -34,6 +34,24 @@ export default function HistoryPage() {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount);
   }
 
+  const billingSummary = useMemo(() => {
+    if (!history || history.length === 0) {
+      return {
+        totalRevenue: 0,
+        totalGramsSold: 0,
+        numberOfSales: 0,
+        averageTicket: 0,
+      };
+    }
+
+    const totalRevenue = history.reduce((acc, sale) => acc + sale.total, 0);
+    const totalGramsSold = history.reduce((acc, sale) => acc + sale.grams, 0);
+    const numberOfSales = history.length;
+    const averageTicket = numberOfSales > 0 ? totalRevenue / numberOfSales : 0;
+
+    return { totalRevenue, totalGramsSold, numberOfSales, averageTicket };
+  }, [history]);
+
   if (!isHistoryAuthorized) {
     return (
       <Dialog open={!isHistoryAuthorized} onOpenChange={(isOpen) => { if (!isOpen) deauthorizeHistory() }}>
@@ -41,7 +59,7 @@ export default function HistoryPage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2"><Lock /> Acesso Restrito</DialogTitle>
             <DialogDescription>
-              Para acessar o histórico de vendas, por favor, insira a senha de 4 dígitos.
+              Para acessar o histórico e o faturamento, por favor, insira a senha de 4 dígitos.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -77,7 +95,7 @@ export default function HistoryPage() {
   return (
     <div className="container mx-auto p-4 max-w-md h-full flex flex-col">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-3xl font-bold text-foreground">Histórico de Vendas</h1>
+        <h1 className="text-3xl font-bold text-foreground">Histórico</h1>
         {!loading && history.length > 0 && (
           <AlertDialog>
             <AlertDialogTrigger asChild>
@@ -100,8 +118,42 @@ export default function HistoryPage() {
           </AlertDialog>
         )}
       </div>
+
+      {!loading && history.length > 0 && (
+        <Card className="mb-4 shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center text-lg">
+              <TrendingUp className="mr-2 h-5 w-5 text-primary" />
+              Resumo do Faturamento
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-muted-foreground">Faturamento Total</p>
+                <p className="font-semibold text-lg">{formatCurrency(billingSummary.totalRevenue)}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Total Vendido</p>
+                <p className="font-semibold text-lg">{billingSummary.totalGramsSold.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}g</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Nº de Vendas</p>
+                <p className="font-semibold text-lg">{billingSummary.numberOfSales}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Ticket Médio</p>
+                <p className="font-semibold text-lg">{formatCurrency(billingSummary.averageTicket)}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
       
       <Card className="flex-1 flex flex-col shadow-lg overflow-hidden">
+         <CardHeader className="pt-4 pb-2">
+            <CardTitle className="text-lg">Histórico de Vendas</CardTitle>
+          </CardHeader>
         <CardContent className="p-0 flex-1">
           <ScrollArea className="h-full">
             <div className="p-4 space-y-2">
