@@ -20,7 +20,7 @@ export default function LoginPage() {
     if (!loading && isAuthenticated) {
       router.replace('/home');
     }
-  }, [loading, isAuthenticated, router]);
+  }, [loading, router]);
 
   const handleLogin = () => {
     if (login(code)) {
