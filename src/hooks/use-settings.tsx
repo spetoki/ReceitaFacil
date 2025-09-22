@@ -55,7 +55,7 @@ interface SettingsContextType {
   isHistoryAuthorized: boolean;
   addStock: (grams: number, cost?: number) => boolean;
   sell: (grams: number) => boolean;
-  trade: (grams: number, description: string) => boolean;
+  trade: (grams: number, description: string, value?: number) => boolean;
   undoLastSale: () => void;
   setPricePerGram: (price: number) => boolean;
   clearHistory: () => void;
@@ -201,7 +201,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     }
     
     const saleDetails = {
-      type: 'sale',
+      type: 'sale' as const,
       pricePerGram: stockData.pricePerGram,
       total: grams * stockData.pricePerGram,
     };
@@ -213,17 +213,18 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     return false;
   }, [stockData.pricePerGram, handleTransaction, toast]);
 
-  const trade = useCallback((grams: number, description: string) => {
+  const trade = useCallback((grams: number, description: string, value?: number) => {
     if (!description) {
       toast({ variant: 'destructive', title: 'Descrição necessária', description: 'Por favor, descreva o objeto trocado.' });
       return false;
     }
 
     const tradeDetails = {
-      type: 'trade',
+      type: 'trade' as const,
       pricePerGram: 0,
-      total: 0,
+      total: value || 0,
       tradeDescription: description,
+      tradeValue: value,
     };
     
     if (handleTransaction(grams, tradeDetails)) {

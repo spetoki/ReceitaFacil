@@ -12,7 +12,7 @@ interface StockContextType extends StockData {
   isHistoryAuthorized: boolean;
   addStock: (grams: number, cost?: number) => boolean;
   sell: (grams: number) => boolean;
-  trade: (grams: number, description: string) => boolean;
+  trade: (grams: number, description: string, value?: number) => boolean;
   undoLastSale: () => void;
   setPricePerGram: (price: number) => boolean;
   clearHistory: () => void;

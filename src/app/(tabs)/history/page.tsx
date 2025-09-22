@@ -35,7 +35,7 @@ export default function HistoryPage() {
   }
 
   const billingSummary = useMemo(() => {
-    const totalRevenue = history.filter(h => h.type === 'sale').reduce((acc, sale) => acc + sale.total, 0);
+    const totalRevenue = history.reduce((acc, sale) => acc + sale.total, 0);
     const totalGramsSold = history.reduce((acc, sale) => acc + sale.grams, 0);
     const totalCost = (stockAdditions || []).reduce((acc, addition) => acc + (addition.cost || 0), 0);
     const currentStock = stock;
@@ -172,6 +172,11 @@ export default function HistoryPage() {
                         <p className="text-sm text-muted-foreground pl-1 mt-1">
                           <span className="font-medium">Objeto: </span>{item.tradeDescription}
                         </p>
+                       {item.tradeValue && item.tradeValue > 0 && (
+                           <p className="text-sm text-muted-foreground pl-1 mt-1">
+                            <span className="font-medium">Valor: </span>{formatCurrency(item.tradeValue)}
+                           </p>
+                       )}
                       </>
                     ) : (
                        <p className="font-semibold">{item.grams.toLocaleString('pt-BR', {maximumFractionDigits: 2})}g vendidos</p>

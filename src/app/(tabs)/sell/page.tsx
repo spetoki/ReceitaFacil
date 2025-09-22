@@ -16,6 +16,7 @@ export default function SellPage() {
   const [money, setMoney] = useState('');
   const [tradeGrams, setTradeGrams] = useState('');
   const [tradeDescription, setTradeDescription] = useState('');
+  const [tradeValue, setTradeValue] = useState('');
   const { stock, pricePerGram, sell, trade, undoLastSale, lastSale, loading } = useStock();
   const router = useRouter();
 
@@ -36,7 +37,8 @@ export default function SellPage() {
 
   const handleTrade = () => {
     const amount = parseFloat(tradeGrams);
-    if (trade(amount, tradeDescription)) {
+    const value = tradeValue ? parseFloat(tradeValue.replace(',', '.')) : undefined;
+    if (trade(amount, tradeDescription, value)) {
       router.push('/home');
     }
   };
@@ -134,7 +136,7 @@ export default function SellPage() {
                     autoFocus
                   />
                 </div>
-                <div className="space-y-2">
+                 <div className="space-y-2">
                   <Label htmlFor="trade-description">Descrição do Objeto Trocado</Label>
                   <Textarea
                     id="trade-description"
@@ -142,6 +144,18 @@ export default function SellPage() {
                     value={tradeDescription}
                     onChange={(e) => setTradeDescription(e.target.value)}
                     className="text-base p-4"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="trade-value">Valor do Objeto (R$) - Opcional</Label>
+                  <Input 
+                    id="trade-value"
+                    type="text" 
+                    placeholder="ex: 150,00"
+                    value={tradeValue}
+                    onChange={(e) => setTradeValue(e.target.value)}
+                    className="text-lg h-16 p-6"
+                    inputMode="decimal"
                   />
                 </div>
               </div>
